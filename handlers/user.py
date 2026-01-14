@@ -19,12 +19,12 @@ async def process_start_command(message: Message, db: dict):
         db["users"][message.from_user.id] = deepcopy(db.get("user_template"))
 
 
-@user_router.message(Command(command="help"))
+@user_router.message(Command(commands="help"))
 async def process_help_command(message: Message):
     await message.answer(LEXICON[message.text])
 
 
-@user_router.message(Command(command="beginning"))
+@user_router.message(Command(commands="beginning"))
 async def process_beginning_command(message: Message, book: dict, db: dict):
     db["users"][message.from_user.id]["page"] = 1
     text = book[1]
@@ -46,6 +46,7 @@ async def process_continue_command(message: Message, book: dict, db: dict):
         reply_markup=create_pagination_keyboard(
             "backward",
             f"{db["users"][message.from_user.id]["page"]}/{len(book)}",
+            "forward",
         ),
     )
 
@@ -67,7 +68,7 @@ async def process_bookmarks_command(message: Message, book: dict, db: dict):
 async def process_forward_press(callback: CallbackQuery, book: dict, db: dict):
     current_page = db["users"][callback.from_user.id]["page"]
     if current_page < len(book):
-        db["users"][callable.from_user.id]["page"] += 1
+        db["users"][callback.from_user.id]["page"] += 1
         text = book[current_page + 1]
         await callback.message.edit_text(
             text=text,
@@ -114,7 +115,7 @@ async def process_bookmark_press(callback: CallbackQuery, book: dict, db: dict):
     await callback.message.edit_text(
         text=text,
         reply_markup=create_pagination_keyboard(
-            "backword",
+            "backward",
             f"{db["users"][callback.from_user.id]["page"]}/{len(book)}",
             "forward",
         ),
